@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# linux上nginx，php，mysql集成环境
-
 set -e # "Exit immediately if a simple command exits with a non-zero status."
 basepath=$(cd `dirname $0`; pwd)
 DISTRO=''
@@ -15,7 +13,7 @@ mhash_version='0.9.9.9'
 mcrypt_version='2.6.8'
 redis_version='4.2.0'
 
-Get_Dist_Name()
+Linux_Judge()
 {
     if grep -Eqii "CentOS" /etc/issue || grep -Eq "CentOS" /etc/*-release; then
         DISTRO='CentOS'
@@ -48,11 +46,10 @@ install_dependencies()
 {
     if [[ $DISTRO == 'CentOS' || $DISTRO == 'RHEL' || $DISTRO == 'Fedora' ]]; then
         yum install -y gcc gcc-c++
-        yum install -y epel-release oniguruma-devel libxml2 libxml2-devel openssl openssl-devel curl-devel libjpeg-devel libpng-devel freetype-devel mysql-devel  libsqlite3x-devel autoconf
+        yum install -y epel-release oniguruma-devel libxml2 libxml2-devel openssl openssl-devel curl-devel libjpeg-devel libpng-devel freetype-devel mysql-devel libsqlite3x-devel autoconf
     elif [[ $DISTRO == 'Debian' || $DISTRO == 'Ubuntu' ]]; then
         apt-get install -y gcc g++ make openssl pkg-config libssl-dev  libcurl4-openssl-dev autoconf \
         libxml2 libxml2-dev libjpeg-dev libpng-dev libfreetype6-dev epel-release oniguruma-devel  libsqlite3x-devel
-        # Ubuntu和Debian不一样
         if [[ $DISTRO == 'Ubuntu' ]]; then
             apt-get install -y libmysqlclient-dev
         else
@@ -64,7 +61,6 @@ install_dependencies()
 install_nginx() 
 {
     cd $basepath
-    # 1. nginx安装
     wget http://nginx.org/download/nginx-${nginx_version}.tar.gz
     wget https://svwh.dl.sourceforge.net/project/pcre/pcre/${pcre_version}/pcre-${pcre_version}.tar.gz
     wget https://zlib.net/zlib-${zlib_version}.tar.gz
@@ -72,15 +68,15 @@ install_nginx()
     tar -zxf pcre-${pcre_version}.tar.gz
     tar -zxf zlib-${zlib_version}.tar.gz
 
-
-    # nginx安装 注意 --with-pcre=  --with-zlib --with-openssl  指的是源码路径
+    # nginx  --with-pcre=  --with-zlib --with-openssl
     cd ./nginx-${nginx_version}
     ./configure --prefix=/usr/local/nginx-${nginx_version} --with-pcre=./../pcre-${pcre_version}  --with-zlib=./../zlib-${zlib_version} --with-http_stub_status_module \
     --with-http_ssl_module --user=www --group=www --with-http_realip_module --with-threads
     make
     make install
 
-
+    # create a link to nginx
+    ln -sf /usr/local/nginx/sbin/nginx /usr/bin/
     echo 'Nginx installed successfully!'
 }
 
@@ -133,7 +129,6 @@ EOF
     cd $basepath
     tar -zxvf php-${php_version}.tar.gz
     cd ./php-${php_version}
-    cp php.ini-production  /usr/local/php-${php_version}/bin/php.ini
     $configure_str
     make 
     make install
@@ -149,7 +144,7 @@ error_log = /usr/local/php-${php_version}/var/log/php-fpm.log
 log_level = notice
 
 [www]
-listen = /tmp/php-cgi.sock
+listen = /dev/shm/php-cgi.sock
 listen.backlog = -1
 listen.allowed_clients = 127.0.0.1
 listen.owner = www
@@ -166,6 +161,7 @@ request_terminate_timeout = 100
 request_slowlog_timeout = 0
 slowlog = var/log/slow.log
 EOF
+    cp php.ini-production  /usr/local/php-${php_version}/bin/php.ini
     cp /usr/local/php-${php_version}/etc/php-fpm.d/www.conf.default /usr/local/php-${php_version}/etc/php-fpm.d/www.conf
     echo 'PHP installed successfully!'
 }
@@ -190,7 +186,7 @@ if [ $(id -u) != "0" ]; then
     exit 1
 fi
 
-Get_Dist_Name
+Linux_Judge
 echo -e "Which do you want to install?\n1. nginx\n2. php\n3. nginx and php\n4. redis"
 read choose
 
@@ -206,6 +202,7 @@ elif [[ $choose = '3' ]]; then
     install_nginx
     install_php
 elif [[ $choose = '4' ]]; then
+    install_dependencies
     install_redis
 else
     echo "Nothing to install."

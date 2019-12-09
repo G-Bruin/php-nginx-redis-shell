@@ -1,22 +1,93 @@
-# LNMP编译脚本
-Linux 上php mysql nginx集成bash脚本
+# purpose
+Build php nginx redis automatically with shell
 
-# 使用
+# version
+
+tool | version
+---- | ---
+php | 7.4.0
+nginx |  1.16.1
+redis |  4.2.0
+
+# usage
+### create www user
+```bash
+[root@localhost shm]# groupadd -r www
+[root@localhost shm]# useradd -r -g www -s /sbin/nologin -M www
 ```
-chmod a+x install.sh
-./install.sh
+### use shell
+```
+[root@localhost shm]# chmod a+x install.sh
+[root@localhost shm]# ./install.sh
 ```
 
-# 注意
-* 必须以root用户运行脚本
-* `install.sh`用来安装nginx和php，`mysql.sh`用来安装mysql
-* 修改php和nginx版本的话，请修改`nginx_version`和`php_version`变量（在shell开头），默认安装PHP版本为7.4
-* mcrypt已被PHP废弃，该shell中不安装它
+### php.ini configuration
+```bash
+[root@localhost shm]# vim /usr/local/php-${php_version}/bin/php.ini
+> extension_dir = "/usr/local/php-${php_version}/lib/php/extensions/no-debug-zts-20190902"
+> date.timezone = PRC
+```
 
-# 代码说明
-1. `Get_Dist_Name`用来判断不同的Linux发行版
-2. `install_dependencies`安装软件依赖
-3. `install_nginx`安装nginx
-4. `install_php`安装php
-5. Ubuntu和Debian的mysqlclient-dev库名不一样，前者为libmysqlclient-dev，后者为default-libmysqlclient-dev
+### centos add php-fpm management to /etc/init.d 
+```bash
+cp /{source code}/sapi/fpm/init.d.php-fpm /etc/init.d/php-fpm
 
+ > vim php.sh
+
+[root@localhost shm]# vim /etc/profile.d/php.sh
+
+> add the following:
+
+export PATH=$PATH:/usr/local/php-${php_version}/bin/:/usr/local/php-${php_version}/sbin/
+
+> save and exit
+
+:wq!
+
+> use source update php env
+
+[root@localhost shm]# source /etc/profile.d/php.sh
+[root@localhost shm]# chmod +x /etc/init.d/php-fpm
+[root@localhost shm]# chkconfig --add php-fpm
+[root@localhost shm]# chkconfig php-fpm on
+[root@localhost shm]# php-fpm -t
+[root@localhost shm]# systemctl start php-fpm.service
+
+```
+
+### nginx conf example
+
+```bash
+
+server {
+        listen       80;
+        server_name  localhost;
+        root /var/www/laravel/public;
+
+
+        index index.php index.html index.htm;
+
+        error_page   500 502 503 504  /50x.html;
+        location = /50x.html {
+            root   html;
+        }
+
+        # proxy the PHP scripts 
+        location ~ \.php$ {
+            fastcgi_pass unix:/dev/shm/php-cgi.sock;
+            fastcgi_index  index.php;
+            fastcgi_param  SCRIPT_FILENAME  $document_root$fastcgi_script_name;
+            include        fastcgi_params;
+        }
+    }
+
+```
+
+# code description
+1. `Linux_Judge` Used to determine different Linux distributions
+2. `install_dependencies`Install software dependencies
+3. `install_nginx`Install nginx
+4. `install_php` Install php
+5. `install_redis` Install redis
+
+# 
