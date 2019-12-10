@@ -76,7 +76,7 @@ install_nginx()
     make install
 
     # create a link to nginx
-    ln -sf /usr/local/nginx/sbin/nginx /usr/bin/
+    ln -sf /usr/local/nginx-${nginx_version}/sbin/nginx /usr/bin/
     echo 'Nginx installed successfully!'
 }
 
