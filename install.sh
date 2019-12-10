@@ -46,7 +46,7 @@ install_dependencies()
 {
     if [[ $DISTRO == 'CentOS' || $DISTRO == 'RHEL' || $DISTRO == 'Fedora' ]]; then
         yum install -y gcc gcc-c++
-        yum install -y epel-release oniguruma-devel libxml2 libxml2-devel openssl openssl-devel curl-devel libjpeg-devel libpng-devel freetype-devel mysql-devel libsqlite3x-devel autoconf
+        yum install -y epel-release bison re2c oniguruma-devel libxml2 libxml2-devel openssl openssl-devel curl-devel libjpeg-devel libpng-devel freetype-devel mysql-devel libsqlite3x-devel autoconf
     elif [[ $DISTRO == 'Debian' || $DISTRO == 'Ubuntu' ]]; then
         apt-get install -y gcc g++ make openssl pkg-config libssl-dev  libcurl4-openssl-dev autoconf \
         libxml2 libxml2-dev libjpeg-dev libpng-dev libfreetype6-dev epel-release oniguruma-devel  libsqlite3x-devel
@@ -177,8 +177,6 @@ install_redis()
   echo 'redis installed successfully!'
 }
 
-##### 程序正文
-
 # Check if user is root
 if [ $(id -u) != "0" ]; then
     echo "Error: You must be root to run this script, please use root to install lnmp"
@@ -188,20 +186,17 @@ fi
 Linux_Judge
 echo -e "Which do you want to install?\n1. nginx\n2. php\n3. nginx and php\n4. redis"
 read choose
+install_dependencies
 
 
 if [[ $choose = '1' ]]; then
-    install_dependencies
     install_nginx
 elif [[ $choose = '2' ]]; then
-    install_dependencies
     install_php
 elif [[ $choose = '3' ]]; then
-    install_dependencies
     install_nginx
     install_php
 elif [[ $choose = '4' ]]; then
-    install_dependencies
     install_redis
 else
     echo "Nothing to install."
