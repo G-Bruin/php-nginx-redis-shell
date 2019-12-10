@@ -82,8 +82,6 @@ install_nginx()
 
 install_php()
 {
-    groupadd -r php
-    useradd -r -g php -s /sbin/nologin -M php
     mkdir -p /usr/local/php-${php_version}/bin/
     local configure_str=$(cat <<EOF
 ./configure \
@@ -127,6 +125,7 @@ install_php()
 EOF
 )
     cd $basepath
+    wget https://www.php.net/distributions/php-${php_version}.tar.gz
     tar -zxvf php-${php_version}.tar.gz
     cd ./php-${php_version}
     $configure_str
