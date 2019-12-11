@@ -88,6 +88,7 @@ server {
 2. `install_dependencies`Install software dependencies
 3. `install_nginx`Install nginx
 4. `install_php` Install php
-5. `install_redis` Install redis
+5. `install_redis_extend` Install php redis extend
+6. `install_redis` Install redis
 
 # 

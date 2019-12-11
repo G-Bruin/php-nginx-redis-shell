@@ -11,7 +11,8 @@ zlib_version='1.2.11'
 libmcrypt_version='2.5.8'
 mhash_version='0.9.9.9'
 mcrypt_version='2.6.8'
-redis_version='4.2.0'
+redis_extend_version='4.2.0'
+redis_version='4.0.14'
 
 Linux_Judge()
 {
@@ -53,18 +54,33 @@ install_dependencies()
         if [[ $DISTRO == 'Ubuntu' ]]; then
             apt-get install -y libmysqlclient-dev
         else
-            apt-get install -y default-libmysqlclient-dev       
+            apt-get install -y default-libmysqlclient-dev
         fi
     fi
 }
 
-install_nginx() 
+install_redis()
+{
+    cd $basepath
+    wget http://download.redis.io/releases/redis-${redis_version}.tar.gz
+    tar -zxf redis-${redis_version}.tar.gz
+    cd redis-${redis_version}/src && make install
+    mkdir -p /usr/local/redis/bin/
+    mkdir -p /usr/local/redis/etc/
+    cp ./src/mkreleasehdr.sh ./src/redis-benchmark ./src/redis-check-aof ./src/redis-check-rdb ./src/redis-cli ./src/redis-server /usr/local/redis/bin/
+    cp redis.conf /usr/local/redis/etc/ && cd /usr/local/redis/bin/
+#    sed -i "s/# requirepass foobared/requirepass 123456/g" /usr/local/redis/etc/redis.conf
+#    sed -i "s/daemonize no/daemonize yes/g" /usr/local/redis/etc/redis.conf
+    ./redis-server /usr/local/redis/etc/redis.conf
+}
+
+install_nginx()
 {
     cd $basepath
     wget http://nginx.org/download/nginx-${nginx_version}.tar.gz
     wget https://svwh.dl.sourceforge.net/project/pcre/pcre/${pcre_version}/pcre-${pcre_version}.tar.gz
     wget https://zlib.net/zlib-${zlib_version}.tar.gz
-    tar -zxvf nginx-${nginx_version}.tar.gz 
+    tar -zxvf nginx-${nginx_version}.tar.gz
     tar -zxf pcre-${pcre_version}.tar.gz
     tar -zxf zlib-${zlib_version}.tar.gz
 
@@ -129,7 +145,7 @@ EOF
     tar -zxvf php-${php_version}.tar.gz
     cd ./php-${php_version}
     $configure_str
-    make 
+    make
     make install
 
     # create a link to php
@@ -165,11 +181,11 @@ EOF
     echo 'PHP installed successfully!'
 }
 
-install_redis()
+install_redis_extend()
 {
-  wget http://pecl.php.net/get/redis-${redis_version}.tgz
-  tar -xzvf redis-${redis_version}.tgz
-  cd redis-${redis_version}
+  wget http://pecl.php.net/get/redis-${redis_extend_version}.tgz
+  tar -xzvf redis-${redis_extend_version}.tgz
+  cd redis-${redis_extend_version}
   /usr/local/php-${php_version}/bin/phpize
   ./configure --with-php-config=/usr/local/php-${php_version}/bin/php-config
   make && make install
@@ -184,7 +200,7 @@ if [ $(id -u) != "0" ]; then
 fi
 
 Linux_Judge
-echo -e "Which do you want to install?\n1. nginx\n2. php\n3. nginx and php\n4. redis"
+echo -e "Which do you want to install?\n1. nginx\n2. php\n3. nginx and php\n4. redis_extend\n5. redis"
 read choose
 install_dependencies
 
@@ -197,6 +213,8 @@ elif [[ $choose = '3' ]]; then
     install_nginx
     install_php
 elif [[ $choose = '4' ]]; then
+    install_redis_extend
+elif [[ $choose = '5' ]]; then
     install_redis
 else
     echo "Nothing to install."
