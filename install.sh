@@ -176,7 +176,7 @@ request_terminate_timeout = 100
 request_slowlog_timeout = 0
 slowlog = var/log/slow.log
 EOF
-    cp php.ini-production  /usr/local/php-${php_version}/bin/php.ini
+    cp php.ini-production  /usr/local/php-${php_version}/etc/php.ini
     cp /usr/local/php-${php_version}/etc/php-fpm.d/www.conf.default /usr/local/php-${php_version}/etc/php-fpm.d/www.conf
     echo 'PHP installed successfully!'
 }
@@ -189,7 +189,7 @@ install_redis_extend()
   /usr/local/php-${php_version}/bin/phpize
   ./configure --with-php-config=/usr/local/php-${php_version}/bin/php-config
   make && make install
-  echo "extension=redis.so" >> /usr/local/php-${php_version}/bin/php.ini
+  echo "extension=redis.so" >> /usr/local/php-${php_version}/etc/php.ini
   echo 'redis installed successfully!'
 }
 

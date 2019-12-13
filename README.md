@@ -23,7 +23,7 @@ redis |  4.2.0
 
 ### php.ini configuration
 ```bash
-[root@localhost shm]# vim /usr/local/php-${php_version}/bin/php.ini
+[root@localhost shm]# vim /usr/local/php-${php_version}/etc/php.ini
 > extension_dir = "/usr/local/php-${php_version}/lib/php/extensions/no-debug-zts-20190902"
 > date.timezone = PRC
 ```
