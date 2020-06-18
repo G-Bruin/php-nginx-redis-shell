@@ -5,7 +5,7 @@ Build php nginx redis automatically with shell
 
 tool | version
 ---- | ---
-php | 7.4.0
+php | 7.2.2
 nginx |  1.16.1
 redis |  4.2.0
 

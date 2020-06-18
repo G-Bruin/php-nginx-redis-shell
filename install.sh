@@ -5,7 +5,7 @@ basepath=$(cd `dirname $0`; pwd)
 DISTRO=''
 PM=''
 nginx_version='1.16.1'
-php_version='7.4.0'
+php_version='7.2.2'
 pcre_version='8.38'
 zlib_version='1.2.11'
 libmcrypt_version='2.5.8'
@@ -106,6 +106,7 @@ install_php()
             --enable-fpm \
             --with-fpm-user=www \
             --with-fpm-group=www \
+            --with-fileinfo \
             --with-mysqli \
             --with-pdo-mysql \
             --with-libdir=lib64 \
@@ -136,7 +137,6 @@ install_php()
             --enable-soap \
             --without-pear \
             --with-gettext \
-            --disable-fileinfo \
             --enable-maintainer-zts
 EOF
 )
@@ -168,10 +168,10 @@ listen.mode = 0666
 user = www
 group = www
 pm = dynamic
-pm.max_children = 60
-pm.start_servers = 30
-pm.min_spare_servers = 30
-pm.max_spare_servers = 60
+pm.max_children = 20
+pm.start_servers = 10
+pm.min_spare_servers = 10
+pm.max_spare_servers = 20
 request_terminate_timeout = 100
 request_slowlog_timeout = 0
 slowlog = var/log/slow.log
