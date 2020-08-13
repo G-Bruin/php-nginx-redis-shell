@@ -67,11 +67,15 @@ install_redis()
     cd redis-${redis_version}/src && make install
     mkdir -p /usr/local/redis/bin/
     mkdir -p /usr/local/redis/etc/
+    cd ../
     cp ./src/mkreleasehdr.sh ./src/redis-benchmark ./src/redis-check-aof ./src/redis-check-rdb ./src/redis-cli ./src/redis-server /usr/local/redis/bin/
     cp redis.conf /usr/local/redis/etc/ && cd /usr/local/redis/bin/
-#    sed -i "s/# requirepass foobared/requirepass 123456/g" /usr/local/redis/etc/redis.conf
-#    sed -i "s/daemonize no/daemonize yes/g" /usr/local/redis/etc/redis.conf
-    ./redis-server /usr/local/redis/etc/redis.conf
+    sed -i "s/# requirepass foobared/requirepass 3yzy2ywmy/g" /usr/local/redis/etc/redis.conf
+    sed -i "s/daemonize no/daemonize yes/g" /usr/local/redis/etc/redis.conf
+    sed -i "s/bind 127.0.0.1/#bind 127.0.0.1/g" /usr/local/redis/etc/redis.conf
+    sed -i "s/protected-mode yes/protected-mode no/g" /usr/local/redis/etc/redis.conf
+    /usr/local/redis/etc/redis-server /usr/local/redis/etc/redis.conf
+    echo "redis 密码 3yzy2ywmy"
 }
 
 install_nginx()
