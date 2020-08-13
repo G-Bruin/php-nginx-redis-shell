@@ -137,7 +137,7 @@ install_php()
             --enable-soap \
             --without-pear \
             --with-gettext \
-            --enable-maintainer-zts
+  #          --enable-maintainer-zts
 EOF
 )
     cd $basepath
