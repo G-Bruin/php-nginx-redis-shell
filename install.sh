@@ -74,7 +74,7 @@ install_redis()
     sed -i "s/daemonize no/daemonize yes/g" /usr/local/redis/etc/redis.conf
     sed -i "s/bind 127.0.0.1/#bind 127.0.0.1/g" /usr/local/redis/etc/redis.conf
     sed -i "s/protected-mode yes/protected-mode no/g" /usr/local/redis/etc/redis.conf
-    /usr/local/redis/etc/redis-server /usr/local/redis/etc/redis.conf
+    /usr/local/redis/bin/redis-server /usr/local/redis/etc/redis.conf
     echo "redis 密码 3yzy2ywmy"
 }
 
